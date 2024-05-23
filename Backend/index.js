@@ -1,10 +1,13 @@
 const express = require("express")
 const { createTodo, updateTodo } = require("./types")
+const { todo } = require("./db")
 const app = express()
 
 app.use(express.json())
 
-app.post('/todo', (req, res) => {
+
+//Creating a todo
+app.post('/todo', async (req, res) => {
     const createPayload = req.body
     const parsedPayload = createTodo.safeParse(createPayload)
     if(!parsedPayload){
@@ -13,13 +16,28 @@ app.post('/todo', (req, res) => {
         })
         return
     }
+
+    await todo.create({
+        title: createPayload.title,
+        description: createPayload.description,
+        completed: false
+    })
+
+    res.json({
+        msg: "Todo created"
+    })
+}) 
+
+//Display all todos
+app.get('/todos', async function(req,res){
+    const todos = await todo.find({})
+    res.json({
+        todos,
+    })
 })
 
-app.get('/todos', function(req,res){
-    res.send("Hello World")
-})
-
-app.put('/completed', (req, res) => {
+//To update a Todo
+app.put('/completed', async(req, res) => {
     const updatePayload = req.body
     const parsedPayload = updateTodo.safeParse(updatePayload)
     if(!parsedPayload){
@@ -28,6 +46,14 @@ app.put('/completed', (req, res) => {
         })
         return
     }
+    await todo.update({
+        _id: req.body.id
+    }, {
+        completed: true
+    })
+    res.json({
+        msg: "todo marked as completed"
+    })
 })
 
 app.listen(3000)
