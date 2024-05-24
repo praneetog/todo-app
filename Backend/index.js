@@ -28,7 +28,7 @@ app.post('/todo', async (req, res) => {
     res.json({
         msg: "Todo created"
     })
-}) 
+})
 
 //Display all todos
 app.get('/todos', async function(req,res){
